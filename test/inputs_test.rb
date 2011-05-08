@@ -674,6 +674,28 @@ class InputTest < ActionView::TestCase
     assert_select 'select option[value=2]', 'Carlos'
   end
 
+# test prompt bug
+# add by ZhangHanDong
+  test 'input should not set include blank if prompt is given when custome collect method' do
+    @new_user = setup_new_user(:id => 1, :name => "Jose", :age => 1)
+    age_state_collect = [['baby', 1], ['adult', 16]]
+    with_input_for @new_user, :age, :select, :collection => age_state_collect, :prompt => "Please select foo"
+    
+    assert_select 'select option[value=1]', 'baby'
+    assert_select 'select option[value=16]', 'adult'
+    assert_select 'select option[value='']', 'Please select foo'
+  end
+  
+  test 'input should not set include blank if prompt is given add by zhanghandong' do
+    users = [ setup_new_user(:id => 1, :name => "Jose", :age => 1), setup_new_user(:id => 2, :name => "Carlos", :age => 18) ]
+    u_collect = users.inject([]){|c, i| c << [i.id, i.age]}
+    with_input_for @user, :age, :select, :collection => u_collect, :prompt => "Please select foo"
+    assert_select 'select option[value=1]', 'baby'
+    assert_select 'select option[value=16]', 'adult'
+    assert_select 'select option[value='']', 'Please select foo'
+  end
+#  end
+
   test 'input should allow overriding collection for radio types' do
     with_input_for @user, :name, :radio, :collection => ['Jose', 'Carlos']
     assert_select 'input[type=radio][value=Jose]'
